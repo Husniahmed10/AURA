@@ -93,7 +93,7 @@ graph TD
 
     subgraph INFRA["INFRASTRUCTURE"]
         I1[("Redis")]
-        I2[("ChromaDB")]
+        I2[("Pinecone")]
         I3["Langsmith"]
         I4["Logfire"]
         I5["LLM Providers"]
@@ -205,7 +205,7 @@ flowchart TD
 | [LangGraph](https://langchain-ai.github.io/langgraph/) | Multi-agent orchestration via state machine |
 | [FastAPI](https://fastapi.tiangolo.com) | REST API backend |
 | [Redis](https://redis.io) | State management, caching, attack deduplication, agent queues |
-| [ChromaDB](https://www.trychroma.com) | Vector store for RAG attack knowledge base |
+| [Pinecone](https://www.pinecone.io) | Managed vector database for RAG attack knowledge base |
 | [Nemo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) | NVIDIA's safety system tested as defender to bypass |
 | [Portkey](https://portkey.ai) | LLM gateway routing to GPT-4o, Claude, Gemini based on task |
 | [Langsmith](https://smith.langchain.com) | Execution tracing and audit trail |
@@ -332,7 +332,7 @@ aura/
 ├── tests/
 │   └── test_agents.py             # Unit tests for all agents
 │
-├── docker-compose.yml             # Redis + ChromaDB + App
+├── docker-compose.yml             # Redis + App
 ├── Dockerfile
 ├── config.yaml                    # Project configuration
 ├── requirements.txt               # Python dependencies
@@ -346,7 +346,7 @@ aura/
 ### Prerequisites
 
 - **Python 3.11+**
-- **Docker and Docker Compose** (for Redis + ChromaDB)
+- **Docker and Docker Compose** (for Redis)
 - **API Keys** for at least one LLM provider (OpenAI, Anthropic, or Google)
 
 ### 1. Clone the Repository
@@ -392,9 +392,12 @@ LANGSMITH_API_KEY=ls-...
 LANGSMITH_PROJECT=aura
 LOGFIRE_TOKEN=...
 
+# Vector Database
+PINECONE_API_KEY=...
+PINECONE_INDEX_NAME=aura-attacks
+
 # Infrastructure
 REDIS_URL=redis://localhost:6379
-CHROMA_URL=http://localhost:8001
 ```
 
 ### 5. Start Infrastructure Services
@@ -406,7 +409,8 @@ docker-compose up -d
 This starts:
 
 - **Redis** on `localhost:6379`
-- **ChromaDB** on `localhost:8001`
+
+> **Note:** Pinecone is a managed cloud service — no local setup needed. Just add your API key to `.env`.
 
 ### 6. Run AURA
 
