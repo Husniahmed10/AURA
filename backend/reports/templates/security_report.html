@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AURA Security Report</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; margin: 40px; }
+        .header { text-align: center; border-bottom: 2px solid #7c3aed; }
+        .critical { color: #dc2626; font-weight: bold; }
+        .high { color: #ea580c; font-weight: bold; }
+        .medium { color: #d97706; }
+        .low { color: #059669; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AURA - AI Security Audit Report</h1>
+        <p>Target: {{ target_url }}</p>
+        <p>Date: {{ scan_date }}</p>
+        <p>Risk Score: {{ risk_score }} / 10</p>
+    </div>
+    <!-- Report content rendered by Jinja2 -->
+</body>
+</html>
