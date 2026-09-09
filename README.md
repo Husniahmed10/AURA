@@ -494,25 +494,6 @@ curl -X POST http://localhost:8000/api/v1/scans \
 - [ ] **Phase 5** — Polish: RAG knowledge base + CI/CD integration + Docker
 - [ ] **Phase 6** — Frontend: Dashboard UI (Next.js — TBD)
 
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Here is how you can help:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-attack`)
-3. **Commit** your changes (`git commit -m 'Add Crescendo variant attack'`)
-4. **Push** to the branch (`git push origin feature/amazing-attack`)
-5. **Open** a Pull Request
-
-### Areas Where Help is Needed
-
-- 🗡️ New attack strategies and jailbreak templates
-- 📊 Additional evaluation metrics
-- 🌍 Multi-language attack support
-- 📝 Report template improvements
-- 🧪 Test coverage
 
 ---
 
