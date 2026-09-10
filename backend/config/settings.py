@@ -1,59 +1,57 @@
-"""
-AURA - Application Settings
-All configuration in one place using pydantic-settings.
-Secrets from .env, everything else has sensible defaults.
-"""
-
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """AURA configuration - loaded from .env with defaults."""
-
-    # -- LLM Providers --------------------------------------
+    # LLM Providers
     GROQ_API_KEY: str
-    OPENAI_API_KEY: str = ""
+    OPENAI_API_KEY: str
 
-    # -- LLM Model Routing ----------------------------------
-    ATTACK_MODEL: str = "llama-3.1-70b-versatile"      # Groq - fast + free
-    RECON_MODEL: str = "llama-3.1-8b-instant"           # Groq - ultra fast
-    REPORT_MODEL: str = "gpt-4o"                        # OpenAI - best quality
-    EVAL_MODEL: str = "llama-3.1-70b-versatile"         # Groq - good balance
+    # LLM Model Routing
+    ATTACK_MODEL: str = "openai/gpt-oss-120b"
+    RECON_MODEL: str = "openai/gpt-oss-120b"
+    REPORT_MODEL: str = "gpt-4o"
+    EVAL_MODEL: str = "openai/gpt-oss-120b"
 
-    # -- Portkey LLM Gateway --------------------------------
-    PORTKEY_API_KEY: str = ""
+    # Portkey
+    PORTKEY_API_KEY: str
 
-    # -- Pinecone Vector Database ---------------------------
-    PINECONE_API_KEY: str = ""
+    # Pinecone
+    PINECONE_API_KEY: str
     PINECONE_INDEX_NAME: str = "aura-attacks"
     PINECONE_NAMESPACE: str = "attack_strategies"
     PINECONE_TOP_K: int = 5
 
-    # -- Redis ----------------------------------------------
-    REDIS_URL: str = "redis://localhost:6379"
-    REDIS_SCAN_TTL: int = 86400       # 24 hours
-    REDIS_CACHE_TTL: int = 604800     # 7 days
+    # Redis
+    REDIS_URL: str
+    REDIS_SCAN_TTL: int = 86400   ## Scanned data
+    REDIS_CACHE_TTL: int = 604800 ## Cached data
 
-    # -- Observability --------------------------------------
-    LANGSMITH_API_KEY: str = ""
-    LANGSMITH_PROJECT: str = "aura"
-    LOGFIRE_TOKEN: str = ""
+    # LangSmith
+    LANGSMITH_TRACING: bool = True
+    LANGSMITH_ENDPOINT: str = "https://eu.api.smith.langchain.com"
+    LANGSMITH_API_KEY: str
+    LANGSMITH_PROJECT: str = "AURA"
 
-    # -- Agent Settings -------------------------------------
-    MAX_ATTACKS: int = 200
-    NUM_PROBES: int = 30
-    PROBE_TIMEOUT: int = 10
-    ATTACK_MAX_CONCURRENT: int = 5
-    ATTACK_RETRY_ATTEMPTS: int = 3
-    CVSS_THRESHOLD: float = 4.0
-    SCAN_TIMEOUT: int = 300
+    # Logfire
+    LOGFIRE_TOKEN: str
 
-    # -- Target Defaults ------------------------------------
-    DEFAULT_SENSITIVITY: str = "HIGH"
+    # Agent Settings
+    MAX_ATTACKS: int = 200          ## Maximum number of security attack/test attempts AURA can perform during a scan.
+    NUM_PROBES: int = 30            ## Number of security probes/tests AURA performs. A probe is basically a test designed to check how the target responds.
+    PROBE_TIMEOUT: int = 10         ## Maximum time allowed for one probe.
+    ATTACK_MAX_CONCURRENT: int = 5  ## Maximum number of attacks that can run at the same time.
+    ATTACK_RETRY_ATTEMPTS: int = 3  ## If an attack fails because of a temporary error, AURA can retry it.
+    CVSS_THRESHOLD: float = 4.0     ## Only treat/report vulnerabilities with a CVSS score of 4.0 or higher as significant.
+    SCAN_TIMEOUT: int = 300         ## Maximum amount of time allowed for the entire scan.
+
+    # Target Defaults
+    DEFAULT_SENSITIVITY: str = "HIGH"           ## tells AURA how strict/aggressive the security scan should be by default.
     REPORT_FORMATS: list[str] = ["pdf", "json"]
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8"
+    )
 
 
-# Singleton - import this everywhere
 settings = Settings()
