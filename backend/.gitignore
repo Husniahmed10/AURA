@@ -8,10 +8,12 @@ build/
 *.egg
 
 # Virtual Environment
+./.venv/
 venv/
 .venv/
 env/
-
+.venv/
+.deepeval/
 # Environment Variables
 .env
 
