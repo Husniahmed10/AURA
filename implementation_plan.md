@@ -42,14 +42,11 @@ A working pipeline where: User provides a target URL → Recon Agent probes it �
 
 ### 1.1 Config & Settings
 
-#### [MODIFY] [settings.py](file:///c:/Users/husni/OneDrive/Desktop/AURA/backend/config/settings.py)
-- Load all env vars using `pydantic-settings` (`BaseSettings`)
-- Fields: `GROQ_API_KEY`, `OPENAI_API_KEY`, `REDIS_URL`, `PINECONE_API_KEY`, `LOGFIRE_TOKEN`, etc.
-- Load `config.yaml` for agent-specific settings (probe count, timeouts)
-- Validate that at least one LLM API key is provided (Groq or OpenAI)
-
-#### [MODIFY] [config.yaml](file:///c:/Users/husni/OneDrive/Desktop/AURA/backend/config.yaml)
-- Already created with agent settings, LLM routing (Groq for attacks, OpenAI for reports), Pinecone config, Redis TTLs
+#### [DONE] [settings.py](file:///c:/Users/husni/OneDrive/Desktop/AURA/backend/config/settings.py)
+- ✅ Already implemented — single source of all config using `pydantic-settings`
+- Loads secrets from `backend/.env` (API keys, Redis URL)
+- All agent settings have sensible defaults (probe count, timeouts, model names)
+- No YAML needed — everything in one Python file
 
 ---
 
