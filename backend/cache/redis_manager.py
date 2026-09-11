@@ -28,8 +28,8 @@ class RedisManager:
             settings.REDIS_URL,
             encoding="utf-8",
             decode_responses=True,
+            protocol=2,  # Use RESP2 for older Redis versions
         )
-        # Test connection
         await self.redis.ping()
         return self
 
@@ -38,7 +38,7 @@ class RedisManager:
         if self.redis:
             await self.redis.close()
 
-    # -- Scan State Management ------------------------------
+    # -- Scan State Management --
 
     async def create_scan(self, scan_id: str, config: dict) -> dict:
         """Create a new scan entry in Redis."""
@@ -91,7 +91,7 @@ class RedisManager:
                 ex=settings.REDIS_SCAN_TTL,
             )
 
-    # -- Attack Results -------------------------------------
+    # -- Attack Results --
 
     async def cache_attack_result(self, scan_id: str, result: dict):
         """Append an attack result to the scan's results list."""
@@ -109,12 +109,11 @@ class RedisManager:
         """Check if an attack payload has already been used in this scan."""
         payload_hash = hashlib.sha256(payload.encode()).hexdigest()
         key = f"scan:{scan_id}:attacks"
-        # SADD returns 0 if the member already exists
         added = await self.redis.sadd(key, payload_hash)
         await self.redis.expire(key, settings.REDIS_SCAN_TTL)
-        return added == 0  # True = duplicate
+        return added == 0
 
-    # -- Progress Tracking ----------------------------------
+    # -- Progress Tracking --
 
     async def get_scan_progress(self, scan_id: str) -> dict:
         """Get a summary of scan progress."""
@@ -130,7 +129,7 @@ class RedisManager:
             "updated_at": scan["updated_at"],
         }
 
-    # -- Utility --------------------------------------------
+    # -- Utility --
 
     async def delete_scan(self, scan_id: str):
         """Delete a scan and its associated data."""

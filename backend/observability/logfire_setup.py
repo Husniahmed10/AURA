@@ -5,6 +5,7 @@ Every agent action, LLM call, and state transition is recorded.
 """
 
 import logfire
+import os
 from functools import wraps
 from typing import Any
 
@@ -13,16 +14,21 @@ from config.settings import settings
 
 def setup_logfire():
     """Initialize Logfire with AURA project settings."""
-    logfire.configure(
-        token=settings.LOGFIRE_TOKEN,
-        service_name="aura",
-        service_version="0.1.0",
-    )
+    if settings.LOGFIRE_TOKEN:
+        logfire.configure(
+            token=settings.LOGFIRE_TOKEN,
+            service_name="aura",
+            service_version="0.1.0",
+        )
+    else:
+        # Suppress warnings if no token configured
+        os.environ["LOGFIRE_IGNORE_NO_CONFIG"] = "1"
 
 
 def instrument_fastapi(app):
     """Add Logfire tracing middleware to FastAPI app."""
-    logfire.instrument_fastapi(app)
+    if settings.LOGFIRE_TOKEN:
+        logfire.instrument_fastapi(app)
 
 
 def agent_span(agent_name: str):
@@ -37,12 +43,14 @@ def agent_span(agent_name: str):
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            with logfire.span(
-                f"agent.{agent_name}",
-                agent=agent_name,
-            ):
-                result = await func(*args, **kwargs)
-                return result
+            if settings.LOGFIRE_TOKEN:
+                with logfire.span(
+                    f"agent.{agent_name}",
+                    agent=agent_name,
+                ):
+                    return await func(*args, **kwargs)
+            else:
+                return await func(*args, **kwargs)
         return wrapper
     return decorator
 
@@ -56,15 +64,16 @@ def log_llm_call(
     scan_id: str = "",
 ):
     """Log an LLM call with structured data."""
-    logfire.info(
-        "LLM call: {agent} -> {model}",
-        agent=agent,
-        model=model,
-        prompt_length=len(prompt),
-        response_length=len(response),
-        tokens_used=tokens_used,
-        scan_id=scan_id,
-    )
+    if settings.LOGFIRE_TOKEN:
+        logfire.info(
+            "LLM call: {agent} -> {model}",
+            agent=agent,
+            model=model,
+            prompt_length=len(prompt),
+            response_length=len(response),
+            tokens_used=tokens_used,
+            scan_id=scan_id,
+        )
 
 
 def log_attack(
@@ -75,21 +84,26 @@ def log_attack(
     severity: str = "",
 ):
     """Log an attack attempt with result."""
-    logfire.info(
-        "Attack: {attack_type} | success={success}",
-        scan_id=scan_id,
-        attack_type=attack_type,
-        payload_length=len(payload),
-        success=success,
-        severity=severity,
-    )
+    if settings.LOGFIRE_TOKEN:
+        logfire.info(
+            "Attack: {attack_type} | success={success}",
+            scan_id=scan_id,
+            attack_type=attack_type,
+            payload_length=len(payload),
+            success=success,
+            severity=severity,
+        )
 
 
 def log_scan_event(scan_id: str, event: str, details: Any = None):
     """Log a general scan lifecycle event."""
-    logfire.info(
-        "Scan event: {event}",
-        scan_id=scan_id,
-        event=event,
-        details=str(details) if details else "",
-    )
+    if settings.LOGFIRE_TOKEN:
+        logfire.info(
+            "Scan event: {event}",
+            scan_id=scan_id,
+            event=event,
+            details=str(details) if details else "",
+        )
+    else:
+        # Fallback to print for debugging when Logfire isn't configured
+        print(f"  [{event}] {details if details else ''}")
