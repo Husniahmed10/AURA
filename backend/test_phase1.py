@@ -7,9 +7,13 @@ Usage:
     2. Run this script:     python test_phase1.py
 """
 
-import asyncio
-import json
+import os
+# Suppress Logfire warning before any imports
+os.environ["LOGFIRE_IGNORE_NO_CONFIG"] = "1"
+# Fix Langsmith endpoint (use EU endpoint from settings)
+os.environ["LANGSMITH_ENDPOINT"] = os.getenv("LANGSMITH_ENDPOINT", "https://eu.api.smith.langchain.com")
 
+import asyncio
 from orchestrator.master_agent import run_scan_quick
 
 
@@ -25,6 +29,7 @@ async def main():
     try:
         result = await run_scan_quick("http://localhost:8001")
 
+        print()
         print("=" * 60)
         print("  SCAN RESULTS")
         print("=" * 60)
@@ -36,13 +41,13 @@ async def main():
         recon = result.get("recon_data")
         if recon:
             print("--- RECON DATA ---")
-            print(f"Model Type:       {recon.get('model_type', 'unknown')}")
-            print(f"Model Confidence: {recon.get('model_confidence', 0)}")
-            print(f"Guardrails:       {recon.get('guardrails_detected', [])}")
-            print(f"Blocked Topics:   {recon.get('blocked_topics', [])}")
-            print(f"Prompt Hints:     {recon.get('system_prompt_hints', [])}")
-            print(f"Attack Surface:   {recon.get('attack_surface', [])}")
-            print(f"Response Patterns: {recon.get('response_patterns', {})}")
+            print(f"  Model Type:       {recon.get('model_type', 'unknown')}")
+            print(f"  Model Confidence: {recon.get('model_confidence', 0)}")
+            print(f"  Guardrails:       {recon.get('guardrails_detected', [])}")
+            print(f"  Blocked Topics:   {recon.get('blocked_topics', [])}")
+            print(f"  Prompt Hints:     {recon.get('system_prompt_hints', [])}")
+            print(f"  Attack Surface:   {recon.get('attack_surface', [])}")
+            print(f"  Response Stats:   {recon.get('response_patterns', {})}")
         else:
             print("No recon data returned!")
 
@@ -52,7 +57,7 @@ async def main():
         print("=" * 60)
 
     except Exception as e:
-        print(f"ERROR: {e}")
+        print(f"\nERROR: {e}")
         import traceback
         traceback.print_exc()
 
