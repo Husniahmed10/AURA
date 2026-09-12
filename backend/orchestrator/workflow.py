@@ -3,24 +3,20 @@ AURA - LangGraph Workflow Definition
 Defines the agent pipeline, state transitions, and conditional routing.
 
 Pipeline: Recon -> Attack -> Evaluate -> Report
+Phase 1: Recon fully functional
+Phase 2: Recon + Attack fully functional
+Phase 3+: Evaluate and Report stubs will be replaced
 """
 
 from langgraph.graph import StateGraph, END
 
 from orchestrator.state import ScanState, ScanStatus
 from agents.recon_agent import run_recon
+from agents.attack_agent import run_attacks
 from observability.logfire_setup import log_scan_event
 
 
-# -- Stub Agents (Phase 1 - pass-through) ---------------
-
-async def run_attacks_stub(state: ScanState) -> ScanState:
-    """Stub: Attack Agent - will be implemented in Phase 2."""
-    scan_id = state["scan_id"]
-    log_scan_event(scan_id, "attack_skipped", "Phase 2 - not yet implemented")
-    state["status"] = ScanStatus.ATTACKING.value
-    return state
-
+# -- Stub Agents (Phase 3 & 4 - pass-through) ----------
 
 async def run_evaluation_stub(state: ScanState) -> ScanState:
     """Stub: Evaluator Agent - will be implemented in Phase 3."""
@@ -43,15 +39,8 @@ async def run_report_stub(state: ScanState) -> ScanState:
 def should_attack(state: ScanState) -> str:
     """Decide whether to proceed to attacks based on recon results."""
     recon_data = state.get("recon_data")
-
     if not recon_data:
         return "skip_to_report"
-
-    # If recon found attack surface, proceed to attacks
-    if recon_data.get("attack_surface"):
-        return "attack"
-
-    # If no weaknesses found, still attack (might find something)
     return "attack"
 
 
@@ -62,20 +51,20 @@ def build_workflow() -> StateGraph:
     Build the AURA agent pipeline as a LangGraph StateGraph.
 
     Flow:
-        START -> recon -> (should_attack?) -> attack -> evaluate -> report -> END
+        START -> recon -> attack -> evaluate -> report -> END
     """
     workflow = StateGraph(ScanState)
 
     # Add nodes
     workflow.add_node("recon", run_recon)
-    workflow.add_node("attack", run_attacks_stub)
-    workflow.add_node("evaluate", run_evaluation_stub)
-    workflow.add_node("report", run_report_stub)
+    workflow.add_node("attack", run_attacks)          # Phase 2 - real agent
+    workflow.add_node("evaluate", run_evaluation_stub)  # Phase 3 stub
+    workflow.add_node("report", run_report_stub)        # Phase 4 stub
 
-    # Set entry point
+    # Entry point
     workflow.set_entry_point("recon")
 
-    # Add edges with conditional routing after recon
+    # Conditional routing after recon
     workflow.add_conditional_edges(
         "recon",
         should_attack,
@@ -85,7 +74,7 @@ def build_workflow() -> StateGraph:
         },
     )
 
-    # Sequential flow: attack -> evaluate -> report -> END
+    # Sequential flow
     workflow.add_edge("attack", "evaluate")
     workflow.add_edge("evaluate", "report")
     workflow.add_edge("report", END)
@@ -95,5 +84,4 @@ def build_workflow() -> StateGraph:
 
 def compile_workflow():
     """Compile the workflow into a runnable graph."""
-    workflow = build_workflow()
-    return workflow.compile()
+    return build_workflow().compile()
