@@ -1,3 +1,7 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()  # Inject .env into os.environ for LangSmith/LangChain
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
