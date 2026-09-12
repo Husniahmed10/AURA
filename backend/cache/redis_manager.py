@@ -61,6 +61,33 @@ class RedisManager:
         )
         return scan_state
 
+    async def get_all_scans(self) -> list:
+        """Retrieve a summary of all scans."""
+        if not self.redis: await self.connect()
+        keys = await self.redis.keys("scan:*")
+        scans = []
+        for key in keys:
+            if ":attacks" in key:
+                continue
+            data = await self.redis.get(key)
+            if data:
+                try:
+                    import json
+                    scan = json.loads(data)
+                    summary = {
+                        "scan_id": scan.get("scan_id"),
+                        "status": scan.get("status"),
+                        "target_url": scan.get("config", {}).get("target_url"),
+                        "created_at": scan.get("created_at"),
+                        "attacks_completed": len(scan.get("attack_results", [])),
+                        "overall_risk_score": scan.get("report", {}).get("overall_risk_score") if scan.get("report") else None
+                    }
+                    scans.append(summary)
+                except Exception:
+                    continue
+        scans.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+        return scans
+
     async def get_scan(self, scan_id: str) -> Optional[dict]:
         if not self.redis: await self.connect()
         """Retrieve full scan state."""
@@ -141,6 +168,7 @@ class RedisManager:
         await self.redis.delete(f"scan:{scan_id}:attacks")
 
     async def health_check(self) -> bool:
+        if not self.redis: await self.connect()
         """Check if Redis is reachable."""
         try:
             return await self.redis.ping()

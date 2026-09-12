@@ -18,7 +18,7 @@ async def health_check():
     # Check Redis
     redis_connected = False
     try:
-        redis_connected = await redis_manager.ping()
+        redis_connected = await redis_manager.health_check()
     except Exception:
         pass
         

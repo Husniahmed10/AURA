@@ -14,6 +14,11 @@ from orchestrator.master_agent import run_scan_async
 router = APIRouter(prefix="/api/v1/scans", tags=["Scans"])
 
 
+@router.get("", response_model=list[dict])
+async def list_scans():
+    """Get a list of all historical scans."""
+    return await redis_manager.get_all_scans()
+
 @router.post("", response_model=ScanStatusResponse, status_code=202)
 async def start_scan(request: ScanConfigRequest, background_tasks: BackgroundTasks):
     """
