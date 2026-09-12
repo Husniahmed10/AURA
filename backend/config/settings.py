@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     # Portkey
     PORTKEY_API_KEY: str
+    PORTKEY_CONFIG_ID: str 
 
     # Pinecone
     PINECONE_API_KEY: str
