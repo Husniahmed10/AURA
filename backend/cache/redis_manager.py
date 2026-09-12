@@ -41,6 +41,7 @@ class RedisManager:
     # -- Scan State Management --
 
     async def create_scan(self, scan_id: str, config: dict) -> dict:
+        if not self.redis: await self.connect()
         """Create a new scan entry in Redis."""
         scan_state = {
             "scan_id": scan_id,
@@ -61,6 +62,7 @@ class RedisManager:
         return scan_state
 
     async def get_scan(self, scan_id: str) -> Optional[dict]:
+        if not self.redis: await self.connect()
         """Retrieve full scan state."""
         data = await self.redis.get(f"scan:{scan_id}")
         if data:
@@ -68,6 +70,7 @@ class RedisManager:
         return None
 
     async def update_scan_status(self, scan_id: str, status: str):
+        if not self.redis: await self.connect()
         """Update the status field of a scan."""
         scan = await self.get_scan(scan_id)
         if scan:
@@ -106,6 +109,7 @@ class RedisManager:
             )
 
     async def is_duplicate_attack(self, scan_id: str, payload: str) -> bool:
+        if not self.redis: await self.connect()
         """Check if an attack payload has already been used in this scan."""
         payload_hash = hashlib.sha256(payload.encode()).hexdigest()
         key = f"scan:{scan_id}:attacks"

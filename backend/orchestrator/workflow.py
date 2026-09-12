@@ -50,3 +50,6 @@ def build_workflow() -> StateGraph:
 
 def compile_workflow():
     return build_workflow().compile()
+
+# Instantiate the compiled graph for LangGraph Studio/CLI
+graph = compile_workflow()
