@@ -65,6 +65,8 @@ def ingest_attack_result(attack_result: dict, eval_score: dict):
     vectorstore.add_documents([doc])
 
 
+import hashlib
+
 def ingest_bulk_results(attack_results: list[dict], eval_scores: list[dict]):
     """
     Store multiple attack results at once after a scan completes.
@@ -73,6 +75,7 @@ def ingest_bulk_results(attack_results: list[dict], eval_scores: list[dict]):
 
     score_map = {s.get("attack_id"): s for s in eval_scores}
     successful = []
+    doc_ids = []
 
     for result in attack_results:
         score = score_map.get(result.get("attack_id", ""))
@@ -85,6 +88,8 @@ def ingest_bulk_results(attack_results: list[dict], eval_scores: list[dict]):
                 f"CVSS Score: {score.get('cvss_score', 0)}\n"
                 f"Severity: {score.get('severity', '')}\n"
             )
+            doc_hash = hashlib.sha256(result.get('payload', '').encode()).hexdigest()
+            doc_ids.append(doc_hash)
             successful.append(Document(
                 page_content=content,
                 metadata={
@@ -112,6 +117,6 @@ def ingest_bulk_results(attack_results: list[dict], eval_scores: list[dict]):
         namespace="attack_results",
         pinecone_api_key=settings.PINECONE_API_KEY,
     )
-    vectorstore.add_documents(successful)
+    vectorstore.add_documents(successful, ids=doc_ids)
     print(f"Stored {len(successful)} successful attack results in Pinecone.")
     return len(successful)

@@ -57,6 +57,9 @@ def generate_pdf(report_data: dict) -> Path:
     pdf.cell(0, 10, f"Scan ID: {report_data.get('scan_id')}", ln=True)
     pdf.cell(0, 10, f"Target: {report_data.get('target_url')}", ln=True)
     pdf.cell(0, 10, f"Date: {report_data.get('scan_date', datetime.now(timezone.utc).isoformat()[:10])}", ln=True)
+    trace_url = report_data.get('trace_url')
+    if trace_url:
+        pdf.cell(0, 10, f"LangSmith Trace: {trace_url}", ln=True)
     pdf.ln(5)
     
     # -- Score Summary --
