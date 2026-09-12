@@ -55,6 +55,8 @@ CONTEXT_EXTRACTION = [
 
 
 def check_extraction_success(response: str) -> bool:
+    if response.startswith('[HTTP ') or response.startswith('[ERROR]'):
+        return False
     """Check if the response contains extracted sensitive data."""
     indicators = [
         # API keys
