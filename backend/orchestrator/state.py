@@ -115,7 +115,8 @@ class SecurityReport(BaseModel):
     successful_attacks: int = 0
     success_rate: float = 0.0
     vulnerabilities: list[VulnerabilityFinding] = []
-    executive_summary: str = ""
+    executive_summary: str
+    trace_url: str | None = None
     recommendations: list[str] = []
 
 
