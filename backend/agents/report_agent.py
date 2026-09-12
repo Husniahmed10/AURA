@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 
 from orchestrator.state import ScanState, ScanStatus, SecurityReport, VulnerabilityFinding, Severity
 from observability.logfire_setup import agent_span, log_scan_event
+from observability.langsmith_tracer import tracer
 from cache.redis_manager import redis_manager
 from gateway.portkey_config import get_llm
 from reports.report_generator import generate_pdf, generate_json
@@ -129,6 +130,7 @@ async def run_report(state: ScanState) -> ScanState:
         successful_attacks=len(vulnerabilities),
         success_rate=success_rate,
         vulnerabilities=vulnerabilities,
+        trace_url=tracer.get_run_url(scan_id),
         executive_summary=exec_summary
     )
     
