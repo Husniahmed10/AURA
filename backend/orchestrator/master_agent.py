@@ -47,7 +47,7 @@ async def run_scan_async(scan_id: str, config: ScanConfig) -> dict:
         log_scan_event(scan_id, "pipeline_started")
 
         # Run the full pipeline
-        final_state = await graph.ainvoke(initial_state)
+        final_state = await graph.ainvoke(initial_state, config={"tags": [scan_id]})
 
         log_scan_event(scan_id, "scan_completed", {
             "status": final_state["status"],
