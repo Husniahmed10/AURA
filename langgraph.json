@@ -1,0 +1,8 @@
+{
+  "dependencies": ["./backend"],
+  "graphs": {
+    "aura_red_team_agent": "./backend/orchestrator/workflow.py:graph"
+  },
+  "env": "./backend/.env",
+  "python_version": "3.11"
+}
