@@ -1,0 +1,1 @@
+﻿const fs=require("fs"); let c=fs.readFileSync("app/globals.css","utf8"); if(c.charCodeAt(0)===0xFEFF) c=c.slice(1); fs.writeFileSync("app/globals.css",c,"utf8"); console.log("BOM stripped. First line:", c.split("\n")[0]);
