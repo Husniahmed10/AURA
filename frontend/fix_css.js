@@ -1,0 +1,1 @@
+﻿const fs = require("fs"); const c = fs.readFileSync("app/globals.css","utf8"); const f = c.replace("@tailwind base;\n@tailwind components;\n@tailwind utilities;\n", "@import \"tailwindcss\";\n"); fs.writeFileSync("app/globals.css",f,"utf8"); console.log("Fixed. First line:", f.split("\n")[0]);
