@@ -1,27 +1,44 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Providers } from "@/components/providers";
-import { Toaster } from "@/components/ui/toast";
-
-const inter = Inter({ subsets: ["latin"] });
-
+import Sidebar from "@/components/layout/sidebar";
+import Header from "@/components/layout/header";
+import Providers from "./providers";
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 export const metadata: Metadata = {
-  title: "AURA - AI Red Teaming Agent",
-  description: "Enterprise Security Assessment Platform for LLMs",
+  title: "AURA | AI Security Workspace",
+  description:
+    "Assess, understand, and strengthen the security of your AI applications.",
 };
-
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html lang="en" className={inter.variable}>
+      <body>
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
         <Providers>
-          {children}
-          {/* Note: In shadcn, Toaster is usually used from a hook, but we place the provider here if using sonner or standard toaster */}
+          <div className="console-shell">
+            <Sidebar />
+            <div className="console-body">
+              <Header />
+              <main id="main-content" className="console-main">
+                {children}
+              </main>
+              <footer className="console-footer">
+                <span>AURA / Autonomous AI security</span>
+                <span>Built for confidence.</span>
+              </footer>
+            </div>
+          </div>
         </Providers>
       </body>
     </html>
